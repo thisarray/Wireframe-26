@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mothership</title>
+  <script src="../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+.hidden {
+  display: none;
+}
+#original {
+  margin-left: 1em;
+}
+  </style>
+</head>
+
+<body>
+<section id="imageLoader" class="hidden">
+  <img class="hidden" src="images/aliendude.png" alt="aliendude">
+  <img class="hidden" src="images/background.png" alt="background">
+  <img class="hidden" src="images/bar10.png" alt="bar10">
+  <img class="hidden" src="images/bar11.png" alt="bar11">
+  <img class="hidden" src="images/bar2.png" alt="bar2">
+  <img class="hidden" src="images/bar3.png" alt="bar3">
+  <img class="hidden" src="images/bar4.png" alt="bar4">
+  <img class="hidden" src="images/bullet.png" alt="bullet">
+  <img class="hidden" src="images/mothership.png" alt="mothership">
+  <img class="hidden" src="images/shield1.png" alt="shield1">
+  <img class="hidden" src="images/shield2.png" alt="shield2">
+  <img class="hidden" src="images/shield3.png" alt="shield3">
+  <img class="hidden" src="images/shield4.png" alt="shield4">
+  <img class="hidden" src="images/ship.png" alt="ship">
+  <img class="hidden" src="images/stars.png" alt="stars">
+</section>
+
+<main>
+<h1>mothership</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+<h2>Attribution</h2>
+
+<p><a href="https://wireframe.raspberrypi.org/issues/26">Source Code: Code a Phoenix-style mothership battle, pages 40-41, by Mark Vanstone</a>.</p>
+
+<p>Licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/legalcode">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</a>.</p>
+
+<h2>Original Python code</h2>
+
+<pre id="original"><code>
+# Phoenix Mothership
+WIDTH = 600
+HEIGHT = 800
+
+mothership = Actor(&#x27;mothership&#x27;, center=(300, 100))
+bullet = Actor(&#x27;bullet&#x27;, center=(0, -10))
+alien = Actor(&#x27;aliendude&#x27;, center=(300, 110))
+ship = Actor(&#x27;ship&#x27;, center=(300, 700))
+barShield = []
+lowerShield = []
+backY = count = mothership.frame = gameover = 0
+for b in range(0, 14):
+    barShield.append(Actor(&#x27;bar1&#x27;+str(b%2), center=(310+((b-7)*20), 140)))
+    lowerShield.append(Actor(&#x27;shield1&#x27;, center=(310+((b-7)*20), 160)))
+    barShield[b].frame = lowerShield[b].frame = 1
+for b in range(0, 10):
+    lowerShield.append(Actor(&#x27;shield1&#x27;, center=(310+((b-5)*20), 180)))
+    lowerShield[b + 14].frame = 1
+for b in range(0, 4):
+    lowerShield.append(Actor(&#x27;shield1&#x27;, center=(310+((b-2)*20), 200)))
+    lowerShield[b + 24].frame = 1
+
+def draw():
+    screen.blit(&quot;background&quot;, (0, 0))
+    screen.blit(&quot;stars&quot;, (0, backY))
+    screen.blit(&quot;stars&quot;, (0, backY-800))
+    mothership.draw()
+    if gameover != 1 or (gameover == 1 and count%2 == 0): alien.draw()
+    for b in range(0, 28):
+        if b &lt; 14:
+            if barShield[b].frame &lt; 5:
+                barShield[b].draw()
+        if lowerShield[b].frame &lt; 5:
+            lowerShield[b].draw()
+    bullet.draw()
+    if gameover != 2 or (gameover == 2 and count%2 == 0): ship.draw()
+
+def update():
+    global backY, count, gameover
+    count += 1
+    if gameover == False:
+        backY += 0.2
+        if backY &gt; 800: backY = 0
+        mothership.y += 0.1
+        mothership.frame = int(count/10)%14
+        alien.y = mothership.y + 10
+        for b in range(0, 28):
+            if b &lt; 14:
+                x = (((mothership.frame+b)-7)*20)
+                if x &gt;= 140: x -= 280
+                barShield[b].y += 0.1
+                barShield[b].x = (mothership.x+10)+ x
+                if barShield[b].frame &lt; 5 and barShield[b].colliderect(bullet):
+                    barShield[b].frame += 1
+                    if barShield[b].frame &lt; 5:
+                        barShield[b].image = &quot;bar&quot;+str(barShield[b].frame)
+                    bullet.y = -10
+            lowerShield[b].y += 0.1
+            if lowerShield[b].frame &lt; 5 and lowerShield[b].colliderect(bullet):
+                lowerShield[b].frame += 1
+                if lowerShield[b].frame &lt; 5:
+                    lowerShield[b].image = &quot;shield&quot;+str(lowerShield[b].frame)
+                bullet.y = -10
+        if alien.colliderect(bullet): gameover = 1
+        if ship.colliderect(mothership): gameover = 2
+        if bullet.y &gt; -10: bullet.y -= 5
+
+def on_mouse_down(pos):
+    if bullet.y &lt; 0: bullet.pos = (ship.x,700)
+
+def on_mouse_move(pos):
+    ship.x = pos[0]
+</code></pre>
+</main>
+
+<script>
+// Phoenix Mothership
+WIDTH = 600;
+HEIGHT = 800;
+
+var mothership, bullet, alien, ship, barShield, lowerShield, backY, count, gameover;
+
+function reset() {
+  mothership = new Actor('mothership');
+  mothership.center = [300, 100];
+  mothership.frame = 0;
+  bullet = new Actor('bullet');
+  bullet.center = [0, -10];
+  alien = new Actor('aliendude');
+  alien.center = [300, 110];
+  ship = new Actor('ship');
+  ship.center = [300, 700];
+  barShield = [];
+  lowerShield = [];
+  backY = 0;
+  count = 0;
+  gameover = 0;
+  let a;
+  for (let b = 0; b < 14; b++) {
+    a = new Actor(`bar1${ b % 2 }`);
+    a.center = [310 + ((b - 7) * 20), 140];
+    a.frame = 1;
+    barShield.push(a);
+
+    a = new Actor('shield1');
+    a.center = [310 + ((b - 7) * 20), 160];
+    a.frame = 1;
+    lowerShield.push(a);
+  }
+  for (let b = 0; b < 10; b++) {
+    a = new Actor('shield1');
+    a.center = [310 + ((b - 5) * 20), 180];
+    a.frame = 1;
+    lowerShield.push(a);
+  }
+  for (let b = 0; b < 4; b++) {
+    a = new Actor('shield1');
+    a.center = [310 + ((b - 2) * 20), 200];
+    a.frame = 1;
+    lowerShield.push(a);
+  }
+}
+
+function draw() {
+  screen.blit("background", [0, 0]);
+  screen.blit("stars", [0, backY]);
+  screen.blit("stars", [0, backY - 800]);
+  mothership.draw();
+  if ((gameover !== 1) || ((gameover === 1) && ((count % 2) === 0))) {
+    alien.draw();
+  }
+  for (let b = 0; b < 28; b++) {
+    if (b < 14) {
+      if (barShield[b].frame < 5) {
+        barShield[b].draw();
+      }
+    }
+    if (lowerShield[b].frame < 5) {
+      lowerShield[b].draw();
+    }
+  }
+  bullet.draw();
+  if ((gameover !== 2) || ((gameover === 2) && ((count % 2) === 0))) {
+    ship.draw();
+  }
+}
+
+function update() {
+  count += 1;
+  if (gameover === 0) {
+    backY += 0.2;
+    if (backY > 800) {
+      backY = 0;
+    }
+    mothership.posy += 0.1;
+    mothership.frame = Math.trunc(count / 10) % 14;
+    alien.posy = mothership.posy + 10;
+    for (let b = 0; b < 28; b++) {
+      if (b < 14) {
+        let x = (mothership.frame + b - 7) * 20;
+        if (x >= 140) {
+          x -= 280;
+        }
+        barShield[b].posy += 0.1;
+        barShield[b].posx = mothership.posx + 10 + x;
+        if ((barShield[b].frame < 5) && barShield[b].colliderect(bullet)) {
+          barShield[b].frame += 1;
+          if (barShield[b].frame < 5) {
+            barShield[b].name = "bar" + barShield[b].frame;
+          }
+          bullet.posy = -10;
+        }
+      }
+      lowerShield[b].posy += 0.1;
+      if ((lowerShield[b].frame < 5) && lowerShield[b].colliderect(bullet)) {
+        lowerShield[b].frame += 1;
+        if (lowerShield[b].frame < 5) {
+          lowerShield[b].name = "shield" + lowerShield[b].frame;
+        }
+        bullet.posy = -10;
+      }
+    }
+    if (alien.colliderect(bullet)) {
+      gameover = 1;
+    }
+    if (ship.colliderect(mothership)) {
+      gameover = 2;
+    }
+    if (bullet.posy > -10) {
+      bullet.posy -= 5;
+    }
+  }
+}
+
+function on_mouse_down(pos) {
+  if (bullet.posy < 0) {
+    bullet.pos = [ship.posx, 700];
+  }
+}
+
+function on_mouse_move(pos) {
+  ship.posx = pos[0];
+}
+
+window.addEventListener('load', (event) => {
+  images.LOAD('#imageLoader img');
+  reset();
+  screen.set_mode('#screen', '#reset', '#pause');
+});
+</script>
+</body>
+
+</html>
